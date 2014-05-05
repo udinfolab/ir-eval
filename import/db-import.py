@@ -54,7 +54,7 @@ class MyDB(object) :
   PORT = 3306
   USER = 'xliu'
   PASSWD = 'who'
-  DB = 'xliu_cpeg657_1'
+  DB = 'xliu_cpeg657_14s_1'
 
 def load_assessor (file_path) :
   '''
@@ -71,6 +71,9 @@ def load_assessor (file_path) :
         line = line.rstrip()
         # skip comments
         if re.match('#', line) :
+          continue
+        # skip empty lines
+        if re.match(r'^$', line) :
           continue
 
         row = line.split(' : ')
@@ -110,6 +113,9 @@ def load_query (file_path) :
         # skip comments
         if re.match('#', line) :
           continue
+        # skip empty lines
+        if re.match(r'^$', line) :
+          continue
 
         row = line.split(' : ')
         if 3 != len(row) :
@@ -147,19 +153,22 @@ def load_doc_ret_list (file_path) :
         # skip comments
         if re.match('#', line) :
           continue
+        # skip empty lines
+        if re.match(r'^$', line) :
+          continue
 
         row = line.split(' ')
-        if 6 != len(row) :
+        if 3 != len(row) :
           print '[Error] Invalid ret_list record: %s' % ' '.join(row)
           continue
 
-        query_id = int(int(row[0]) / 10)
-        doc_id = row[2]
-        rank = int(row[3])
+        query_id = row[0]
+        doc_id = row[1]
+        cnt = int(row[2])
 
         ## for debug purpose only
         ## select one query only
-        #if 1 != query_id :
+        #if '1' != query_id :
           #continue
 
         doc_ret_dict[query_id][doc_id] = 1
@@ -180,9 +189,13 @@ def load_trec_corpus (file_path) :
   file_path: string filesystem path to the corpus file
   '''
   global DB_CON
+  global doc_id_dict
+
   db_cur = DB_CON.cursor()
 
   doc_imported = 0
+  so_far = 0
+  total = 577437
 
   is_begin = False
   try:
@@ -195,7 +208,7 @@ def load_trec_corpus (file_path) :
         #line = line.strip()
         if re.match(r'<DOC>', line):
           continue
-        if re.match(r'<DOCNO> ', line):
+        if re.match(r'<DOCNO>', line):
           mo = re.match(r'<DOCNO>(.+)<\/DOCNO>', line)
           doc_id = mo.group(1)
           continue
@@ -204,11 +217,18 @@ def load_trec_corpus (file_path) :
         if re.match(r'<\/TEXT>', line):
           continue
         if re.match(r'<\/DOC>', line):
-          ## import the document to DB
-          doc_data = ''.join(str_list)
+          so_far += 1
+          progress = '\r[%10d / %10d]' % (so_far, total)
+          sys.stdout.write(progress)
+          sys.stdout.flush()
 
-          if import_doc(db_cur, doc_id, doc_data) :
-            doc_imported += 1
+          # skip documents not in the doc_ret_dict
+          if doc_id in doc_id_dict :
+            ## import the document to DB
+            doc_data = ''.join(str_list)
+
+            if import_doc(db_cur, doc_id, doc_data) :
+              doc_imported += 1
 
           ## clear the list: http://stackoverflow.com/a/850831/219617
           del str_list[:]
@@ -241,11 +261,6 @@ def import_doc(db_cur, doc_id, doc_data) :
   Import one document to DB
   '''
   global doc_rev_dict
-  global doc_id_dict
-
-  # skip documents not in the doc_ret_dict
-  if doc_id not in doc_id_dict :
-    return False
 
   title = extract_title(doc_data)
 
@@ -293,7 +308,7 @@ def extract_title(doc) :
   '''
   title = 'N/A'
   for line in doc.split('\n') :
-    if re.match(r'<TITLE> ', line):
+    if re.match(r'<TITLE>', line):
       mo = re.match(r'<TITLE>(.+)<\/TITLE>', line)
       title = mo.group(1)
       continue
@@ -432,7 +447,7 @@ def main() :
     try :
       db_cur.execute(sql, (title, desc))
       # http://stackoverflow.com/a/3790542
-      query_rev_dict[int(query_id)] = db_cur.lastrowid
+      query_rev_dict[query_id] = db_cur.lastrowid
     except mdb.Error, e:
       print '[Error] SQL execution: %s' % sql
       print 'Error %d: %s' % (e.args[0],e.args[1])
@@ -440,7 +455,7 @@ def main() :
 
   do_commit()
   # for debug purpose only
-  return
+  #return
 
 
 
@@ -480,13 +495,13 @@ def main() :
       doc_row_id = doc_rev_dict[doc_id]
 
       sql = 'INSERT INTO %s(query_id,document_id,has_assessed,is_rel,'\
-          'polarity,last_modified) VALUES(' \
+          'last_modified) VALUES(' \
           %(ASSESSMENT_TABLE)
-      sql += '%s, %s, %s, %s, %s, %s)'
+      sql += '%s, %s, %s, %s, %s)'
       try :
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         db_cur.execute(sql, (query_row_id, doc_row_id, False, False,
-          -1, now))
+          now))
       except mdb.Error, e:
         print '[Error] SQL execution: %s' % sql
         print 'Error %d: %s' % (e.args[0],e.args[1])
