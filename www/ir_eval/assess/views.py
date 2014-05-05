@@ -125,8 +125,8 @@ def raw(request, doc_id) :
   different templates
   '''
   t = loader.get_template('raw.html')
-  html = base64.b64decode(doc.html)
-  c = RequestContext(request, {'html': html})
+  doc = base64.b64decode(doc.data)
+  c = RequestContext(request, {'doc': doc})
   return HttpResponse(t.render(c))
 
 def error_json_response(msg) :

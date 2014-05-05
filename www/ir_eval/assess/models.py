@@ -20,13 +20,12 @@ class Query(models.Model) :
     return str(self.assessor) + '-' + str(self.index) + " : " + self.title
 
 class Document(models.Model) :
-  cw_id = models.CharField(max_length=100)
-  header = models.TextField()
+  doc_id = models.CharField(max_length=100)
   title = models.TextField()
-  html = models.TextField()
+  data = models.TextField()
 
   def __unicode__(self) :
-    return str(self.pk) + '-' + self.cw_id
+    return str(self.pk) + '-' + self.doc_id
 
 class Assessment(models.Model) :
   query = models.ForeignKey(Query)
@@ -37,7 +36,7 @@ class Assessment(models.Model) :
 
   def __unicode__(self) :
     return str(self.pk) + '-' + str(self.query.pk) + '-' \
-      + str(self.document.cw_id)
+      + str(self.document.doc_id)
 
 class RetrievalFunction(models.Model) :
   user = models.ForeignKey(User)

@@ -49,7 +49,7 @@ p#submit-error{
 /**********************************************************/
 
 tr.done{
-  background-color:#f5f5f5;
+  background-color: #f5f5f5;
 }
 
 tr.rel{
@@ -64,6 +64,10 @@ table#query-table tr.done{
   border-left: 3px solid #00FF00;
 }
 
+table#query-table tr.in_progress{
+  border-left: 3px solid #FFFF66;
+}
+
 /**********************************************************/
 /*
 /* Miscellaneous
@@ -74,13 +78,17 @@ div#footer p{
 	text-align: center;
 }
 
-div#login_error p{
-  padding: 15px;
-}
-
+div#login_error p,
 div#error_info p,
 div#error_msg p,
 div#info_msg p{
   padding: 15px;
 }
 
+pre.doc_text_wrapper{
+  white-space: pre-wrap;       /* css-3 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}

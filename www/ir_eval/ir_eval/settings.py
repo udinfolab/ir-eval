@@ -61,7 +61,7 @@ WSGI_APPLICATION = 'ir_eval.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'xliu_ireval_1',
+        'NAME': 'xliu_cpeg657_14s_1',
         'USER': 'xliu',
         'PASSWORD': 'who',
         'HOST': '127.0.0.1',
@@ -79,7 +79,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 

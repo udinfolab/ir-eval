@@ -41,7 +41,7 @@
     <th>Total</th>
   </tr>
   {% for query in assessor.query_set.all %}
-    <tr class="{% if query|all_done %}done{% endif %}">
+    <tr class="{% if query|all_done %}done{% elif query|done_count > 0 %}in_progress{% endif %}">
       <td>{{query.qid}}</td>
       <td>
         <p>

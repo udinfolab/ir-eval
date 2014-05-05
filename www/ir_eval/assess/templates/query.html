@@ -44,7 +44,7 @@
   </tr>
   {% for assessment in query.assessment_set.all %}
     <tr class="{% if assessment.has_assessed %} {% if assessment.is_rel %}rel{% else %}unrel{% endif %} done{% endif %}">
-      <td>{{assessment.document.cw_id}}<a name="{{assessment.pk}}"></a></td>
+      <td>{{assessment.document.doc_id}}<a name="{{assessment.pk}}"></a></td>
       <td>
         <p>
           <a href="{% url 'assess.views.assessment' assessment.pk %}">{{assessment.document.title|b64_decode|short_snippet}}</a>
