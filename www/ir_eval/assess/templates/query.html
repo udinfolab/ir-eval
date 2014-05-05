@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Query {{query.id}}{% endblock %}
+
+{% block navbar %}
+      <ul class="nav navbar-nav">
+        <li><a href="{% url 'assess.views.home' %}">Home</a></li>
+        <li class="active"><a href="{% url 'assess.views.query' query.id %}">Query {{query.id}}</a></li>
+      </ul>
+      <p class="navbar-text"><span id="done">{{done}}</span> documents assessed, <span id="left">{{left}}</span> documents left.</p>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{assessor.user.first_name}} {{assessor.user.last_name}} ({{assessor.user.username}}) <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Update Profile</a></li>
+            <li><a href="{% url 'assess.views.assessor_logout' %}">Logout</a></li>
+          </ul>
+        </li>
+      </ul>
+{% endblock %}
+
+{% load doc_extras %}
+
+{% block content %}
+
+{% if error_message %}
+<div id="error_msg">
+  <p>{{ error_message }}</p>
+</div>
+{% endif %}
+
+<div class="row">
+<div id="assessment_list">
+  <h3 id="the-query">Query #{{query.qid}}: {{query.title}}</h3>
+  <table class="table table-hover table-condensed" id="assessment-table">
+  <tr>
+    <th>Doc ID</th>
+    <th>Title</th>
+    <th>Assessed</th>
+    <th>Relevance</th>
+    {% if assessor.user.is_staff %}
+    <th>Last Modified</th>
+    {% endif %}
+  </tr>
+  {% for assessment in query.assessment_set.all %}
+    <tr class="{% if assessment.has_assessed %} {% if assessment.is_rel %}rel{% else %}unrel{% endif %} done{% endif %}">
+      <td>{{assessment.document.cw_id}}<a name="{{assessment.pk}}"></a></td>
+      <td>
+        <p>
+          <a href="{% url 'assess.views.assessment' assessment.pk %}">{{assessment.document.title|b64_decode|short_snippet}}</a>
+        </p>
+      </td>
+      <td>
+        {% if assessment.has_assessed %}
+        <i class="fa fa-check"></i>
+        {% endif %}
+      </td>
+      <td>
+        {% if assessment.has_assessed %}
+        {% if assessment.is_rel %}
+        <i class="fa fa-check-circle-o" style="color:green;">
+        {% else %}
+        <i class="fa fa-times-circle-o" style="color:red;">
+        {% endif %}
+        {% endif %}
+      </td>
+      {% if assessor.user.is_staff %}
+      <td>{{ assessment.last_modified }}</td>
+      {% endif %}
+  {% endfor %}
+  </table>
+</div>
+</div>
+
+{% endblock %}

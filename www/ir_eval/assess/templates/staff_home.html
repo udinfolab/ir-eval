@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% load query_extras %}
+
+{% block title %} Home {% endblock %}
+
+{% block navbar %}
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="{% url 'assess.views.home' %}">Home</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{staff.user.first_name}} {{staff.user.last_name}} ({{staff.user.username}}) <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Update Profile</a></li>
+            <li><a href="{% url 'assess.views.assessor_logout' %}">Logout</a></li>
+          </ul>
+        </li>
+      </ul>
+{% endblock %}
+
+{% load doc_extras %}
+
+{% block content %}
+
+{% if error_message %}
+<div id="error_msg">
+  <p class="bg-danger">{{ error_message }}</p>
+</div>
+{% endif %}
+
+{% for assessor in assessor_list %}
+{% if assessor != staff %}
+
+<div class="row">
+<div class="query_list">
+  <h3>{{assessor.user.first_name}} {{assessor.user.last_name}} ({{assessor.user.username}})</h3>
+  
+  <table class="table table-hover table-condensed" id="query-table">
+  <tr>
+    <th>QID</th>
+    <th>Title</th>
+    <th>Done</th>
+    <th>Left</th>
+    <th>Total</th>
+  </tr>
+  {% for query in assessor.query_set.all %}
+    <tr class="{% if query|all_done %}done{% endif %}">
+      <td>{{query.qid}}</td>
+      <td>
+        <p>
+          <a href="{% url 'assess.views.query' query.id %}">{{query.title|short_snippet}}</a>
+        </p>
+      </td>
+      <td>
+        {{query|done_count}}
+      </td>
+      <td>
+        {{query|left_count}}
+      </td>
+      <td>
+        {{query|total_count}}
+      </td>
+  {% endfor %}
+  </table>
+</div>
+</div>
+
+{% endif %}
+
+{% endfor %}
+
+{% endblock %}

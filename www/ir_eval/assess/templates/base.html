@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="robots" content="noindex,nofollow" />
+  {% load staticfiles %}
+
+  <!-- Bootstrap core CSS -->
+  <link href="{% static "assess/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
+  <!-- Bootstrap theme -->
+  <link href="{% static "assess/bootstrap/css/bootstrap-theme.min.css" %}" rel="stylesheet">
+  <!-- font awesome -->
+  <link rel="stylesheet" href="{% static "assess/font-awesome/css/font-awesome.min.css" %}">
+  <!-- Custom styles for this template -->
+  <link href="{% static "assess/css/theme.css" %}" rel="stylesheet">
+  {% block header %}{% endblock %}
+  
+  <title>{% block title %} {{ appname }} {% endblock %}</title>
+</head>
+<body role="document">
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{% url 'assess.views.home' %}">IR Eval</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      {% block navbar %}{% endblock %}
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+
+<div class="container" role="main" id="container">
+{% block content %}{% endblock %}
+</div>
+
+<div class="container" id="footer">
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+      <p>
+        <a href="http://www.djangoproject.com/">
+          <img src="{% static "assess/images/djangosite100x25.gif" %}" alt="Made with Django." title="Made with Django." />
+        </a>
+      </p>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="{% static "assess/js/jquery.min.js" %}"></script>
+<script src="{% static "assess/bootstrap/js/bootstrap.min.js" %}"></script>
+{% block footer %}{% endblock %}
+</body>
+</html>

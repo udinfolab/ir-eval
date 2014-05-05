@@ -1,0 +1,86 @@
+body {
+  padding-top: 50px;
+  padding-bottom: 30px;  
+}
+
+/**********************************************************/
+/*
+/* Assessment
+/*
+/**********************************************************/
+
+div#float-info-wrapper{
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 55px;
+  padding: 15px 10px;
+  color: #000;
+  background: none repeat scroll 0 0 #F4F8FA;
+  border-bottom: 3px solid;
+  z-index: 1200;
+  margin-left: -15px;
+  display: none;
+  cursor: pointer;
+}
+
+div#float-info-wrapper p{
+  font-size: 1.3em;
+}
+
+p#submit-info{
+  color: #000;
+}
+
+p#submit-success{
+  color: #339933;
+  display: none;
+}
+
+p#submit-error{
+  color: #FF0000;
+  display: none;
+}
+
+/**********************************************************/
+/*
+/* Document List
+/*
+/**********************************************************/
+
+tr.done{
+  background-color:#f5f5f5;
+}
+
+tr.rel{
+  border-left: 3px solid #00FF00;
+}
+
+tr.unrel{
+  border-left: 3px solid #FF0000;
+}
+
+table#query-table tr.done{
+  border-left: 3px solid #00FF00;
+}
+
+/**********************************************************/
+/*
+/* Miscellaneous
+/*
+/**********************************************************/
+
+div#footer p{
+	text-align: center;
+}
+
+div#login_error p{
+  padding: 15px;
+}
+
+div#error_info p,
+div#error_msg p,
+div#info_msg p{
+  padding: 15px;
+}
+
