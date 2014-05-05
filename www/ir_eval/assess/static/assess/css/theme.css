@@ -68,6 +68,10 @@ table#query-table tr.in_progress{
   border-left: 3px solid #FFFF66;
 }
 
+div#guidelines li{
+  margin-top: 10px;
+}
+
 /**********************************************************/
 /*
 /* Miscellaneous

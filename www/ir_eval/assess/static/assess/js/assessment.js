@@ -21,6 +21,8 @@ $(document).ready(function(){
   
   // set up the label form
   $('form#label').submit(function(event){
+    event.preventDefault();
+    
     // first, perform form validation
     if('undefined' === typeof $("input[name='relevance']:checked").val()){
       $('p#submit-info').hide();
@@ -66,8 +68,6 @@ $(document).ready(function(){
         });
       });
     }
-    
-    event.preventDefault();
   });
   
   $('button#label-submit').prop('disabled', 'disabled');
@@ -78,5 +78,23 @@ $(document).ready(function(){
   
   $('input#option-rel-no').click(function(){
     $('button#label-submit').prop('disabled', false);
+  });
+  
+  $('a#view_itunes').click(function(event){
+    event.preventDefault();
+    url = $(this).attr('url');
+    console.log('Redirect to ' + url);
+    $('#doc_view').attr('src', url);
+    $('li.active').removeClass();
+    $(this).parent().addClass('active');
+  });
+  
+  $('a#view_raw_doc').click(function(event){
+    event.preventDefault();
+    url = $(this).attr('url');
+    console.log('Redirect to ' + url);
+    $('#doc_view').attr('src', url);
+    $('li.active').removeClass();
+    $(this).parent().addClass('active');
   });
 });

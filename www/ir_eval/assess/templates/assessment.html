@@ -12,7 +12,8 @@
             <li><a href="{% url 'assess.views.query' query.id %}">Document List</a></li>
           </ul>
         </li>
-        <li class="active"><a href="{% url 'assess.views.assessment' assessment.pk %}">Assessment</a></li>
+        <li class="active"><a id="view_itunes" href="#" url="https://itunes.apple.com/us/app/id{{assessment.document.doc_id}}">iTunes Page</a></li>
+        <li><a id="view_raw_doc" href="#" url="{% url 'assess.views.raw' assessment.document.pk %}">Raw Document</a></li>
       </ul>
       <form id="label" class="navbar-form navbar-left" role="label" action="{% url 'assess.views.label' assessment.pk%}">
         {% csrf_token %}
@@ -28,6 +29,7 @@
         <button type="submit" class="btn btn-default" id="label-submit">Submit</button>
       </form>
       <ul class="nav navbar-nav navbar-right">
+        <li><a href="#" data-toggle="modal" data-target="#guideline_modal">Evaluation Guidelines</a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{assessor.user.first_name}} {{assessor.user.last_name}} ({{assessor.user.username}}) <b class="caret"></b></a>
           <ul class="dropdown-menu">
@@ -42,14 +44,58 @@
 
 {% block content %}
 <div class="row" id="raw_html_viewer">
-<iframe width="100%" height="100%" src="{% url 'assess.views.raw' assessment.document.pk %}"></iframe>
+<iframe id="doc_view" width="100%" height="100%" src="https://itunes.apple.com/us/app/id{{assessment.document.doc_id}}"></iframe>
+<!--
+<iframe id="doc_view" width="100%" height="100%" src="{% url 'assess.views.raw' assessment.document.pk %}"></iframe>
+-->
 </div>
 <div id="float-info-wrapper">
   <p id="submit-info" class="text-center"></p>
   <p id="submit-success" class="text-center"></p>
   <p id="submit-error" class="text-center"></p>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="guideline_modal" tabindex="-1" role="dialog" aria-labelledby="guideline_modal_label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Evaluation Guidelines</h4>
+      </div>
+      <div class="modal-body" id="guidelines">
+        <ol>
+          <li>There are three levels relevance:
+             <ul>
+               <li><b>2:</b> highly relevant</li>
+               <li><b>1:</b> minimum relevant</li>
+               <li><b>0:</b> not relevant</li>
+              </ul>
+          <li>An App should be judged as highly relevant if:
+            <ul>
+              <li>it is clearly the app trying to find</li>
+              <li>or, it can satisfy all the functions specified in the query.
+            </ul>
+          </li>
+          <li>An App should be judged as minimum relevant if
+            <ul>
+              <li>it can only only provide part of the functions specified in the query</li> 
+              <li>or, it is related to the app but a different version</li>
+            </ul>
+          </li>
+          <li>An App should be judged as not relevant if it can not be categorized into the previous two groups</li>
+          <li>Be strict. If you think an app falls in the border of two categories, choose the lower one</li>
+          <li>Be consistent. Use the same rule when judge the queries.</li>
+        </ol>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
+
 
 {% load staticfiles %}
 {% block footer %}
