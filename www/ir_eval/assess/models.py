@@ -17,7 +17,7 @@ class Query(models.Model) :
   description = models.TextField()
 
   def __unicode__(self) :
-    return str(self.assessor) + "-" + str(self.index) + " : " + self.title
+    return str(self.assessor) + '-' + str(self.index) + " : " + self.title
 
 class Document(models.Model) :
   cw_id = models.CharField(max_length=100)
@@ -26,7 +26,7 @@ class Document(models.Model) :
   html = models.TextField()
 
   def __unicode__(self) :
-    return str(self.pk) + "-" + self.cw_id
+    return str(self.pk) + '-' + self.cw_id
 
 class Assessment(models.Model) :
   query = models.ForeignKey(Query)
@@ -36,5 +36,39 @@ class Assessment(models.Model) :
   last_modified = models.CharField(max_length=100)
 
   def __unicode__(self) :
-    return str(self.pk) + "-" + str(self.query.pk) + "-" \
+    return str(self.pk) + '-' + str(self.query.pk) + '-' \
       + str(self.document.cw_id)
+
+class RetrievalFunction(models.Model) :
+  user = models.ForeignKey(User)
+  url = models.CharField(max_length=300)
+  note = models.TextField()
+  index = models.IntegerField()
+
+  def __unicode__(self) :
+    return str(self.user) + '-' + str(self.index)
+        
+class EvalItem(models.Model) :
+  user = models.ForeignKey(User)
+  rf = models.ForeignKey(RetrievalFunction)
+  query = models.ForeignKey(Query)
+  MAP = models.FloatField()
+  P1 = models.FloatField()
+  P3 = models.FloatField()
+  P10 = models.FloatField()
+  NDCG = models.FloatField()
+
+  def __unicode__(self) :
+    return str(self.pk) + '-' + str(self.rf)
+
+class AvgEvalItem(models.Model) :
+  user = models.ForeignKey(User)
+  rf = models.ForeignKey(RetrievalFunction)
+  MAP = models.FloatField()
+  P1 = models.FloatField()
+  P3 = models.FloatField()
+  P10 = models.FloatField()
+  NDCG = models.FloatField()
+
+  def __unicode__(self) :
+    return str(self.pk) + '-' + str(self.rf)
