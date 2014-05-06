@@ -54,7 +54,8 @@ class MyDB(object) :
   PORT = 3306
   USER = 'xliu'
   PASSWD = 'who'
-  DB = 'xliu_cpeg657_14s_1'
+  #DB = 'xliu_cpeg657_14s_1'
+  DB = 'xliu_cpeg657_14s_2'
 
 def load_assessor (file_path) :
   '''

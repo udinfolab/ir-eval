@@ -33,8 +33,8 @@ my $stu_dir = shift or die $usage;
 my $save_file = shift or die $usage;
 
 # global statical variables
-my $BL_RANK_THRED = 50;
-my $STU_RANK_THRED = 10;
+my $BL_RANK_THRED = 20;
+my $STU_RANK_THRED = 5;
 
 # global variables
 my %ret;
