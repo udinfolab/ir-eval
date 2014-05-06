@@ -102,7 +102,7 @@
 {% endblock %}
 
 {% block footer %}
-{% if assessor.user.is_staff %}
+{% if not assessor.user.is_staff %}
 {% load staticfiles %}
 <script src="{% static "assess/js/jquery.cookie.js" %}"></script>
 <script src="{% static "assess/js/json2.js" %}"></script>
