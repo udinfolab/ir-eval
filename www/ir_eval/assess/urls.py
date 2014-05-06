@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
   url(r'^$', 'assess.views.home', name='assess_home'),
+  url(r'^start$', 'assess.views.start', name='assess_start'),
   url(r'^query/(?P<query_id>\d+)$', 'assess.views.query',
     name='assess_query'),
   url(r'^assessment/(?P<assessment_id>\d+)$', 'assess.views.assessment',

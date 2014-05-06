@@ -43,6 +43,9 @@ def home(request) :
   else:
     return render_to_response('assessor_home.html', {'assessor': assessor})
 
+def start(request) :
+  return render_to_response('start.html')
+  
 @login_required
 def query(request, query_id) :
   try :
@@ -170,13 +173,17 @@ def label(request, assessment_id) :
     return error_json_response(msg)
   relevance = request.POST['relevance']
 
-  if 'yes' == relevance :
-    assessment.is_rel = True
-  elif 'no' :
-    assessment.is_rel = False
+  if 'highly' == relevance :
+    assessment.relevance = 2
+  elif 'yes' == relevance :
+    assessment.relevance = 1
+  elif 'no' == relevance :
+    assessment.relevance = 0
   else :
     msg = 'Unknown relevance!'
     return error_json_response(msg)
+  
+  assessment.assessed_by = assessor.user.username
 
   assessment.has_assessed = True
   now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

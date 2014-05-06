@@ -9,6 +9,7 @@
       </ul>
       <p class="navbar-text"><span id="done">{{done}}</span> documents assessed, <span id="left">{{left}}</span> documents left.</p>
       <ul class="nav navbar-nav navbar-right">
+        <li><a href="#" data-toggle="modal" data-target="#guideline_modal">Evaluation Guidelines</a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{assessor.user.first_name}} {{assessor.user.last_name}} ({{assessor.user.username}}) <b class="caret"></b></a>
           <ul class="dropdown-menu">
@@ -40,10 +41,11 @@
     <th>Relevance</th>
     {% if assessor.user.is_staff %}
     <th>Last Modified</th>
+    <th>Assessed By</th>
     {% endif %}
   </tr>
   {% for assessment in query.assessment_set.all %}
-    <tr class="{% if assessment.has_assessed %} {% if assessment.is_rel %}rel{% else %}unrel{% endif %} done{% endif %}">
+    <tr class="{% if assessment.has_assessed %} {% if assessment.relevance %}rel{% else %}unrel{% endif %} done{% endif %}">
       <td>{{assessment.document.doc_id}}<a name="{{assessment.pk}}"></a></td>
       <td>
         <p>
@@ -57,19 +59,71 @@
       </td>
       <td>
         {% if assessment.has_assessed %}
-        {% if assessment.is_rel %}
-        <i class="fa fa-check-circle-o" style="color:green;">
+        {% if 2 == assessment.relevance %}
+        <i class="fa fa-check-circle" style="color:green;"></i>
+        {% elif 1 == assessment.relevance %}
+        <i class="fa fa-check" style="color:blue;"></i>
         {% else %}
         <i class="fa fa-times-circle-o" style="color:red;">
         {% endif %}
         {% endif %}
       </td>
       {% if assessor.user.is_staff %}
+      {% if assessment.has_assessed %}
       <td>{{ assessment.last_modified }}</td>
+      <td>{{ assessment.assessed_by }}</td>
+      {% else %}
+      <td></td>
+      <td></td>
+      {% endif %}
       {% endif %}
   {% endfor %}
   </table>
 </div>
 </div>
 
+<!-- Evaluation Guideline Modal -->
+<div class="modal fade" id="guideline_modal" tabindex="-1" role="dialog" aria-labelledby="guideline_modal_label" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Evaluation Guidelines</h4>
+      </div>
+      <div class="modal-body">
+        {% include "guidelines.html" %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% if not assessor.user.is_staff %}
+{% load staticfiles %}
+<script src="{% static "assess/js/jquery.cookie.js" %}"></script>
+<script src="{% static "assess/js/json2.js" %}"></script>
+<script type="text/javascript">
+  var qid = {{query.id}};
+  var qid_list = [];
+  if('undefined' === typeof $.cookie('guideline_read')){
+    qid_list.push(qid);
+    var cookie_str = JSON.stringify(qid_list);
+    $.cookie('guideline_read', cookie_str, { expires: 1});
+    $('#guideline_modal').modal();
+  }else{
+    var qid_list_str = $.cookie('guideline_read');
+    qid_list = JSON.parse(qid_list_str);
+    if(-1 == $.inArray({{query.id}}, qid_list)){
+      qid_list.push(qid);
+      var cookie_str = JSON.stringify(qid_list);
+      $.cookie('guideline_read', cookie_str, { expires: 1});
+      $('#guideline_modal').modal();
+    }
+  }
+</script>
+{% endif %}
 {% endblock %}
