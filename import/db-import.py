@@ -77,7 +77,7 @@ def load_assessor (file_path) :
           continue
 
         row = line.split(' : ')
-        if 4 != len(row) :
+        if 5 != len(row) :
           print '[Error] Invalid assessor record: %s' % ' : '.join(row)
           continue
 
@@ -494,14 +494,14 @@ def main() :
         continue
       doc_row_id = doc_rev_dict[doc_id]
 
-      sql = 'INSERT INTO %s(query_id,document_id,has_assessed,is_rel,'\
-          'last_modified) VALUES(' \
+      sql = 'INSERT INTO %s(query_id,document_id,has_assessed,'\
+          'relevance,assessed_by,last_modified) VALUES(' \
           %(ASSESSMENT_TABLE)
-      sql += '%s, %s, %s, %s, %s)'
+      sql += '%s, %s, %s, %s, %s, %s)'
       try :
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        db_cur.execute(sql, (query_row_id, doc_row_id, False, False,
-          now))
+        db_cur.execute(sql, (query_row_id, doc_row_id, False, 0,
+          'N/A', now))
       except mdb.Error, e:
         print '[Error] SQL execution: %s' % sql
         print 'Error %d: %s' % (e.args[0],e.args[1])
