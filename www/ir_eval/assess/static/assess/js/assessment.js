@@ -12,7 +12,8 @@ $(document).ready(function(){
   // set up the header, iframe and footer
   $('div#container').removeClass( "container" ).addClass( "container-fluid" );
   //$('div#container').height($(window).height());
-  $('div#raw_html_viewer').height($(window).height());
+  $('div#raw_html_viewer').height($(window).height()-55);
+  $('body').css('padding-bottom', '0px');
   $('div#footer').remove();
   
   $('div#float-info-wrapper').click(function(){

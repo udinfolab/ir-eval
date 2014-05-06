@@ -30,7 +30,7 @@
 {% endif %}
 
 {% for assessor in assessor_list %}
-{% if assessor != staff %}
+{% if False == assessor.user.is_staff %}
 
 <div class="row">
 <div class="query_list">
