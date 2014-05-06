@@ -31,7 +31,8 @@ class Assessment(models.Model) :
   query = models.ForeignKey(Query)
   document = models.ForeignKey(Document)
   has_assessed = models.BooleanField()
-  is_rel = models.BooleanField()
+  relevance = models.IntegerField()
+  assessed_by = models.CharField(max_length=100)
   last_modified = models.CharField(max_length=100)
 
   def __unicode__(self) :

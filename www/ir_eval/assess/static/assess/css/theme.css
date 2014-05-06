@@ -69,7 +69,11 @@ table#query-table tr.in_progress{
 }
 
 div#guidelines li{
-  margin-top: 10px;
+  margin-top: 5px;
+}
+
+div#get-started{
+  margin-top: -50px;
 }
 
 /**********************************************************/

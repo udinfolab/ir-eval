@@ -16,6 +16,10 @@ $(document).ready(function(){
   $('body').css('padding-bottom', '0px');
   $('div#footer').remove();
   
+  $( window ).resize(function() {
+    $('div#raw_html_viewer').height($(window).height()-55);
+  });
+  
   $('div#float-info-wrapper').click(function(){
     $(this).clearQueue().slideUp('fast');
   });
@@ -73,6 +77,10 @@ $(document).ready(function(){
   
   $('button#label-submit').prop('disabled', 'disabled');
 
+  $('input#option-rel-highly').click(function(){
+    $('button#label-submit').prop('disabled', false);
+  });
+  
   $('input#option-rel-yes').click(function(){
     $('button#label-submit').prop('disabled', false);
   });

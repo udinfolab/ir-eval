@@ -13,4 +13,6 @@ def short_snippet(data) :
   if len(data) > 60 :
     return '%s ...' % data[0:60]
   else :
+    if ' ' == data :
+      data = 'N/A'
     return data
