@@ -21,7 +21,7 @@ def assessor_logout(request) :
   Thanks to:
   http://stackoverflow.com/questions/8327078/
   '''
-  if request.META['HTTP_REFERER'] :
+  if 'HTTP_REFERER' in request.META :
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
   else :
     return HttpResponseRedirect(reverse('assess.views.home'))
