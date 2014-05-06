@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+'''
+Import the data (assessors, queries, documents) into DB
+'''
+
 import os
 import re
 import sys
@@ -13,19 +17,14 @@ import MySQLdb as mdb
 import datetime
 from collections import defaultdict
 
-## Note: virtual environment required to import bs4
-from bs4 import BeautifulSoup
-
 # global variables
 # file paths
 # query
 ASSESSOR_FILE = 'data/assessor.list'
-QUERY_TITLE_FILE = 'data/query.title.list'
-QUERY_DESC_FILE = 'data/query.desc.list'
+QUERY_TITLE_FILE = 'data/query.list'
 # document
-WARC_CORPUS_FILE = 'data/cochrane.warc'
+WARC_CORPUS_FILE = 'data/corpus.trec'
 DOC_RET_FILE = 'data/ret.list'
-SPAM_LIST_FILE = 'data/spam.list'
 
 # table names
 TABLE_TMPL = 'assess_%s'
@@ -34,16 +33,11 @@ DOC_TABLE = TABLE_TMPL % 'document'
 ASSESSOR_TABLE = TABLE_TMPL % 'assessor'
 ASSESSMENT_TABLE = TABLE_TMPL % 'assessment'
 
-#RANK_THRED = 1
-RANK_THRED = 50
-SPAM_THRED = 70
 DB_CON = None
 
 assessor_dict = None
 query_dict = None
-query_desc_dict = None
 
-spam_dict = None
 doc_ret_dict = None
 doc_id_dict = dict()
 
@@ -60,8 +54,7 @@ class MyDB(object) :
   PORT = 3306
   USER = 'xliu'
   PASSWD = 'who'
-  #DB = 'xliu_bias_1'
-  DB = 'xliu_bias_2'
+  DB = 'xliu_cpeg657_14s_1'
 
 def load_assessor (file_path) :
   '''
@@ -76,6 +69,13 @@ def load_assessor (file_path) :
       assessor_dict = dict()
       for line in assessor_file :
         line = line.rstrip()
+        # skip comments
+        if re.match('#', line) :
+          continue
+        # skip empty lines
+        if re.match(r'^$', line) :
+          continue
+
         row = line.split(' : ')
         if 4 != len(row) :
           print '[Error] Invalid assessor record: %s' % ' : '.join(row)
@@ -110,6 +110,13 @@ def load_query (file_path) :
       query_dict = dict()
       for line in query_file :
         line = line.rstrip()
+        # skip comments
+        if re.match('#', line) :
+          continue
+        # skip empty lines
+        if re.match(r'^$', line) :
+          continue
+
         row = line.split(' : ')
         if 3 != len(row) :
           print '[Error] Invalid query record: %s' % ' : '.join(row)
@@ -131,36 +138,6 @@ def load_query (file_path) :
     print '-' * 60
     sys.exit(-1)
 
-def load_spam_dict (file_path) :
-  '''
-  Load the spam list
-
-  file_path: string filesystem path to the spam list file
-  '''
-  try :
-    with open(file_path) as spam_file :
-      print '[Info] Loading %s' % file_path
-
-      spam_dict = dict()
-      for line in spam_file :
-        line = line.rstrip()
-        row = line.split(' ')
-        if 3 != len(row) :
-          print '[Error] Invalid spamrecord: %s' % ' '.join(row)
-          continue
-
-        query_id = row[0]
-        doc_id = row[1]
-        score = int(row[2])
-        spam_dict[doc_id] = score
-
-      return spam_dict
-  except IOError as e :
-    print '-' * 60
-    traceback.print_exc(file = sys.stdout)
-    print '-' * 60
-    sys.exit(-1)
-
 def load_doc_ret_list (file_path) :
   '''
   Load the retrieval list for query-document map
@@ -169,32 +146,30 @@ def load_doc_ret_list (file_path) :
     with open(file_path) as ret_file :
       print 'Loading %s' % file_path
 
-      global spam_dict
       global doc_id_dict
       doc_ret_dict = defaultdict(dict)
       for line in ret_file :
         line = line.rstrip()
+        # skip comments
+        if re.match('#', line) :
+          continue
+        # skip empty lines
+        if re.match(r'^$', line) :
+          continue
+
         row = line.split(' ')
-        if 6 != len(row) :
+        if 3 != len(row) :
           print '[Error] Invalid ret_list record: %s' % ' '.join(row)
           continue
 
-        query_id = int(int(row[0]) / 10)
-        doc_id = row[2]
-        rank = int(row[3])
-
-        if rank > RANK_THRED :
-          continue
+        query_id = row[0]
+        doc_id = row[1]
+        cnt = int(row[2])
 
         ## for debug purpose only
         ## select one query only
-        #if 1 != query_id :
+        #if '1' != query_id :
           #continue
-
-        if doc_id not in spam_dict :
-          continue
-        if spam_dict[doc_id] < SPAM_THRED :
-          continue
 
         doc_ret_dict[query_id][doc_id] = 1
         doc_id_dict[doc_id] = 1
@@ -207,16 +182,20 @@ def load_doc_ret_list (file_path) :
     sys.exit(-1)
 
 
-def load_warc_corpus (file_path) :
+def load_trec_corpus (file_path) :
   '''
-  Load the corpus in WARC format
+  Load the corpus in TREC format
 
   file_path: string filesystem path to the corpus file
   '''
   global DB_CON
+  global doc_id_dict
+
   db_cur = DB_CON.cursor()
 
   doc_imported = 0
+  so_far = 0
+  total = 577437
 
   is_begin = False
   try:
@@ -229,20 +208,27 @@ def load_warc_corpus (file_path) :
         #line = line.strip()
         if re.match(r'<DOC>', line):
           continue
-        if re.match(r'<DOCNO> ', line):
-          mo = re.match(r'<DOCNO> (.+) <\/DOCNO>', line)
+        if re.match(r'<DOCNO>', line):
+          mo = re.match(r'<DOCNO>(.+)<\/DOCNO>', line)
           doc_id = mo.group(1)
           continue
-        if re.match(r'<DOCHDR>', line):
+        if re.match(r'<TEXT>', line):
           continue
-        if re.match(r'<\/DOCHDR>', line):
+        if re.match(r'<\/TEXT>', line):
           continue
         if re.match(r'<\/DOC>', line):
-          ## import the document to DB
-          doc_data = ''.join(str_list)
+          so_far += 1
+          progress = '\r[%10d / %10d]' % (so_far, total)
+          sys.stdout.write(progress)
+          sys.stdout.flush()
 
-          if import_doc(db_cur, doc_id, doc_data) :
-            doc_imported += 1
+          # skip documents not in the doc_ret_dict
+          if doc_id in doc_id_dict :
+            ## import the document to DB
+            doc_data = ''.join(str_list)
+
+            if import_doc(db_cur, doc_id, doc_data) :
+              doc_imported += 1
 
           ## clear the list: http://stackoverflow.com/a/850831/219617
           del str_list[:]
@@ -250,8 +236,8 @@ def load_warc_corpus (file_path) :
           #if doc_imported >= 500:
             #break
 
-          ## perform commit every 1000 documents
-          if 0 == doc_imported % 1000 :
+          ## perform commit every 100 documents
+          if 0 == doc_imported % 100 :
             do_commit()
             ## for debug purpose only
             #break
@@ -275,14 +261,8 @@ def import_doc(db_cur, doc_id, doc_data) :
   Import one document to DB
   '''
   global doc_rev_dict
-  global doc_id_dict
 
-  # skip documents not in the doc_ret_dict
-  if doc_id not in doc_id_dict :
-    return False
-
-  (header, html) = process_warc(doc_data)
-  title = extract_title(html)
+  title = extract_title(doc_data)
 
   # in rare situation, the title will be blank. We need to fix it.
   if '' == title :
@@ -291,20 +271,19 @@ def import_doc(db_cur, doc_id, doc_data) :
   # apply base64 encoding, therefore base64 decoding should be applied
   # when data is fetched from DB
   #title = title.decode('ascii', 'replace')
-  #html = html.decode('ascii', 'replace')
+  #doc_data = doc_data.decode('ascii', 'replace')
   #title = unicode(title, errors = 'ignore')
-  #html = unicode(html, errors = 'ignore')
+  #doc_data = unicode(doc_data, errors = 'ignore')
   title_b64 = base64.b64encode(remove_non_ascii(title))
-  html_b64 = base64.b64encode(remove_non_ascii(html))
+  doc_data_b64 = base64.b64encode(remove_non_ascii(doc_data))
 
   #print '[Info]: importing %s' % doc_id
 
-  sql = 'INSERT INTO %s(cw_id,header,title,html) VALUES'\
+  sql = 'INSERT INTO %s(doc_id,title,data) VALUES'\
         '(' % DOC_TABLE
-  sql += '%s, %s, %s, %s)'
+  sql += '%s, %s, %s)'
   try :
-    db_cur.execute(sql, (doc_id, header, title_b64, html_b64))
-    #db_cur.execute(sql, (doc_id, header, title, html))
+    db_cur.execute(sql, (doc_id, title_b64, doc_data_b64))
     # http://stackoverflow.com/a/3790542
     doc_rev_dict[doc_id] = db_cur.lastrowid
     return True
@@ -323,45 +302,18 @@ def remove_non_ascii(s) :
   else :
     return ''
 
-def process_warc(html) :
+def extract_title(doc) :
   '''
-  Sepearate the HTTP header and body from WARC dump
+  Extract the title of document
   '''
-  header_list = []
-  body_list = []
-  in_body = False
-  for line in html.split('\n'):
-    ## if the line starts with a '<' tag, it should be an identification
-    ## of HTML body
-    if re.match(r'<', line):
-      in_body = True
+  title = 'N/A'
+  for line in doc.split('\n') :
+    if re.match(r'<TITLE>', line):
+      mo = re.match(r'<TITLE>(.+)<\/TITLE>', line)
+      title = mo.group(1)
+      continue
 
-    if in_body:
-      body_list.append(line)
-    else :
-      header_list.append(line)
-
-  header_str = '\n'.join(header_list)
-  body_str = '\n'.join(body_list)
-  return (header_str, body_str)
-
-def extract_title(html) :
-  '''
-  Extract the title of HTML
-  '''
-  soup = BeautifulSoup(html)
-  if None == soup :
-    return 'N/A'
-  if None == soup.html :
-    # malformed html
-    return 'N/A'
-  if None == soup.html.head :
-    # this should not happen
-    return 'N/A'
-  if None == soup.html.head.title :
-    # this should not happen either
-    return 'N/A'
-  return soup.html.head.title.string
+  return title
 
 def test_db() :
   '''
@@ -441,9 +393,7 @@ def main() :
 
   global assessor_dict
   global query_dict
-  global query_desc_dict
 
-  global spam_dict
   global doc_ret_dict
 
   global assessor_rev_dict
@@ -481,7 +431,6 @@ def main() :
 
   ## import query
   query_dict = load_query(QUERY_TITLE_FILE)
-  #query_desc_dict = load_query_desc(QUERY_DESC_FILE)
   query_id_list = query_dict.keys()
   query_id_list.sort(key=lambda x: int(x))
 
@@ -490,7 +439,6 @@ def main() :
   for query_id in query_id_list :
     assessor_id = query_dict[query_id]['assessor_id']
     title = query_dict[query_id]['title']
-    #desc = query_desc_dict[query_id]
     desc = 'N/A'
 
     sql = 'INSERT INTO %s(qid,assessor_id,title,description)'\
@@ -499,7 +447,7 @@ def main() :
     try :
       db_cur.execute(sql, (title, desc))
       # http://stackoverflow.com/a/3790542
-      query_rev_dict[int(query_id)] = db_cur.lastrowid
+      query_rev_dict[query_id] = db_cur.lastrowid
     except mdb.Error, e:
       print '[Error] SQL execution: %s' % sql
       print 'Error %d: %s' % (e.args[0],e.args[1])
@@ -513,7 +461,6 @@ def main() :
 
   #'''
   ## import documents
-  spam_dict = load_spam_dict(SPAM_LIST_FILE)
   doc_ret_dict = load_doc_ret_list(DOC_RET_FILE)
 
   sum_num = 0
@@ -528,7 +475,7 @@ def main() :
   #return
 
   print '[Info] Importing %s' % DOC_TABLE
-  load_warc_corpus(WARC_CORPUS_FILE)
+  load_trec_corpus(WARC_CORPUS_FILE)
 
 
 
@@ -548,13 +495,13 @@ def main() :
       doc_row_id = doc_rev_dict[doc_id]
 
       sql = 'INSERT INTO %s(query_id,document_id,has_assessed,is_rel,'\
-          'polarity,last_modified) VALUES(' \
+          'last_modified) VALUES(' \
           %(ASSESSMENT_TABLE)
-      sql += '%s, %s, %s, %s, %s, %s)'
+      sql += '%s, %s, %s, %s, %s)'
       try :
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         db_cur.execute(sql, (query_row_id, doc_row_id, False, False,
-          -1, now))
+          now))
       except mdb.Error, e:
         print '[Error] SQL execution: %s' % sql
         print 'Error %d: %s' % (e.args[0],e.args[1])
