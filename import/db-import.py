@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 '''
@@ -28,9 +27,9 @@ DOC_RET_FILE = 'data/ret.list'
 
 # table names
 TABLE_TMPL = 'assess_%s'
+ASSESSOR_TABLE = TABLE_TMPL % 'assessor'
 QUERY_TABLE = TABLE_TMPL % 'query'
 DOC_TABLE = TABLE_TMPL % 'document'
-ASSESSOR_TABLE = TABLE_TMPL % 'assessor'
 ASSESSMENT_TABLE = TABLE_TMPL % 'assessment'
 
 DB_CON = None

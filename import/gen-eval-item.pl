@@ -121,7 +121,7 @@ sub save_eval(){
       my $map = $eval{$ret_id}{$qid}{map_cut_5};
       my $p5 = $eval{$ret_id}{$qid}{P_5};
       my $ndcg = $eval{$ret_id}{$qid}{ndcg_cut_5};
-      printf EVAL "%d %d %.4f %.4f %.4f\n", $ret_id, $qid, $map, $p5, 
+      printf EVAL "%s %d %.4f %.4f %.4f\n", $ret_id, $qid, $map, $p5, 
         $ndcg;
     }
   }
@@ -138,7 +138,7 @@ sub save_avg_eval(){
     my $map = $avg_eval{$ret_id}{map_cut_5};
     my $p5 = $avg_eval{$ret_id}{P_5};
     my $ndcg = $avg_eval{$ret_id}{ndcg_cut_5};
-    printf AVG_EVAL "%d %.4f %.4f %.4f\n", $ret_id, $map, $p5, $ndcg;
+    printf AVG_EVAL "%s %.4f %.4f %.4f\n", $ret_id, $map, $p5, $ndcg;
   }
 
   close AVG_EVAL;
