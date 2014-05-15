@@ -143,5 +143,7 @@ sub save_merged(){
       print SAVE "$qid $did $score\n";
     }
   }
+
+  close SAVE;
 }
 
