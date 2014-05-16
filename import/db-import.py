@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 '''
@@ -28,9 +27,9 @@ DOC_RET_FILE = 'data/ret.list'
 
 # table names
 TABLE_TMPL = 'assess_%s'
+ASSESSOR_TABLE = TABLE_TMPL % 'assessor'
 QUERY_TABLE = TABLE_TMPL % 'query'
 DOC_TABLE = TABLE_TMPL % 'document'
-ASSESSOR_TABLE = TABLE_TMPL % 'assessor'
 ASSESSMENT_TABLE = TABLE_TMPL % 'assessment'
 
 DB_CON = None
@@ -54,7 +53,8 @@ class MyDB(object) :
   PORT = 3306
   USER = 'xliu'
   PASSWD = 'who'
-  DB = 'xliu_cpeg657_14s_1'
+  #DB = 'xliu_cpeg657_14s_1'
+  DB = 'xliu_cpeg657_14s_2'
 
 def load_assessor (file_path) :
   '''
