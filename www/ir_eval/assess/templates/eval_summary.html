@@ -7,11 +7,12 @@
   <link rel="stylesheet" href="{% static "assess/css/theme.bootstrap.css" %}">
 {% endblock %}
 
-{% block title %} Home {% endblock %}
+{% block title %}Evaluation Summary{% endblock %}
 
 {% block navbar %}
       <ul class="nav navbar-nav">
-        <li class="active"><a href="{% url 'assess.views.home' %}">Home</a></li>
+        <li><a href="{% url 'assess.views.home' %}">Home</a></li>
+        <li class="active"><a href="{% url 'assess.views.eval_summary' %}">Eval Summary</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
