@@ -218,7 +218,7 @@ def load_avg_eval_list (file_path) :
           continue
 
         row = line.split(sep)
-        if 4 != len(row) :
+        if 5 != len(row) :
           print '[Error] Invalid avg_eval_list record: %s' % sep.join(row)
           continue
 
@@ -226,12 +226,14 @@ def load_avg_eval_list (file_path) :
         map = row[1]
         p5 = row[2]
         ndcg = row[3]
+        ndcg_o = row[4]
 
         item = dict()
         item['rf_id'] = rf_id
         item['map'] = map
         item['p5'] = p5
         item['ndcg'] = ndcg
+        item['ndcg_o'] = ndcg_o
         avg_eval_list.append(item)
 
       return avg_eval_list
@@ -302,6 +304,9 @@ def do_commit() :
 def main() :
   init_db()
 
+  #disable import to avoid data been overwritten
+  return
+
   # load query table
   query_dict = load_query()
 
@@ -325,8 +330,8 @@ def main() :
   rf_id_list = ret_func_dict.keys()
   rf_id_list.sort(key=lambda x: int(x))
 
-  for rf_id in rf_id_list :
-    item = ret_func_dict[rf_id]
+  for id in rf_id_list :
+    item = ret_func_dict[id]
     assessor_id = int(item['assessor_id'])
     if assessor_id not in assessor_dict :
       print '[Error] assessor_id %d not found in assessor_dict'\
@@ -370,7 +375,7 @@ def main() :
       sys.exit(-1)
     query_pk = query_dict[qid]
 
-    sql = 'INSERT INTO %s(rf_id, query_id, MAP, P5, NDCG) VALUES'\
+    sql = 'INSERT INTO %s(rf_id, query_id, MAP, P5, nDCG) VALUES'\
       % EVAL_TABLE
     sql += '(%s, %s, %s, %s, %s)'
 
@@ -395,13 +400,13 @@ def main() :
       sys.exit(-1)
     rf_pk = rf_rev_dict[rf_id]
 
-    sql = 'INSERT INTO %s(rf_id, MAP, P5, NDCG) VALUES'\
+    sql = 'INSERT INTO %s(rf_id, MAP, P5, nDCG, nDCG_o) VALUES'\
       % AVG_EVAL_TABLE
-    sql += '(%s, %s, %s, %s)'
+    sql += '(%s, %s, %s, %s, %s)'
 
     try :
       db_cur.execute(sql, (rf_pk, item['map'], item['p5'],
-        item['ndcg']))
+        item['ndcg'], item['ndcg_o']))
     except mdb.Error, e:
       print '[Error] SQL execution: %s' % sql
       print 'Error %d: %s' % (e.args[0],e.args[1])
