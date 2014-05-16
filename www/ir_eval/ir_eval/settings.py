@@ -61,11 +61,12 @@ WSGI_APPLICATION = 'ir_eval.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'xliu_cpeg657_14s_1',
+        #'NAME': 'xliu_cpeg657_14s_1',
+        'NAME': 'xliu_cpeg657_14s_2',
         'USER': 'xliu',
         'PASSWORD': 'who',
         'HOST': '127.0.0.1',
-        'PORT': '3306',
+        #'PORT': '3306',
         #'PORT': '8889',
         # force to use INNODB engine
         'OPTIONS': {
@@ -97,7 +98,6 @@ STATIC_URL = '/static/'
 TEMPLATE_CONTEXT_PROCESSORS = (
 'django.core.context_processors.request',
 'django.contrib.auth.context_processors.auth',
-'assess.contexts.appname',
 )
 
 # some configuration about the authentication

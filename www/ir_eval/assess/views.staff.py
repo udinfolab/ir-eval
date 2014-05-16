@@ -35,6 +35,11 @@ def home(request) :
       'error_message': "You are not a valid assessor.",
     })
 
+  if not assessor.user.is_staff :
+    return render_to_response('error.html', {
+      'error_message': "You are not a valid assessor.",
+    })
+
   if assessor.user.is_staff :
     assessor_list = Assessor.objects.all()
     return render_to_response('staff_home.html', {
@@ -45,12 +50,17 @@ def home(request) :
 
 def start(request) :
   return render_to_response('start.html')
-  
+
 @login_required
 def query(request, query_id) :
   try :
     assessor = Assessor.objects.get(user=request.user)
   except Assessor.DoesNotExist :
+    return render_to_response('error.html', {
+      'error_message': "You are not a valid assessor.",
+    })
+
+  if not assessor.user.is_staff :
     return render_to_response('error.html', {
       'error_message': "You are not a valid assessor.",
     })
@@ -85,6 +95,10 @@ def assessment(request, assessment_id) :
   try :
     assessor = Assessor.objects.get(user=request.user)
   except Assessor.DoesNotExist :
+    return render_to_response('error.html', {
+      'error_message': "You are not a valid assessor.",
+    })
+  if not assessor.user.is_staff :
     return render_to_response('error.html', {
       'error_message': "You are not a valid assessor.",
     })
@@ -162,6 +176,10 @@ def label(request, assessment_id) :
   except Assessor.DoesNotExist :
     msg = 'You are not a valid assessor!'
     return error_json_response(msg)
+  if not assessor.user.is_staff :
+    return render_to_response('error.html', {
+      'error_message': "You are not a valid assessor.",
+    })
 
   if query.assessor != assessor :
     if False == assessor.user.is_staff :
@@ -182,7 +200,7 @@ def label(request, assessment_id) :
   else :
     msg = 'Unknown relevance!'
     return error_json_response(msg)
-  
+
   assessment.assessed_by = assessor.user.username
 
   assessment.has_assessed = True
@@ -195,60 +213,3 @@ def label(request, assessment_id) :
     + '#' + assessment_id}
   return HttpResponse(json.dumps(response), content_type="application/json")
 
-# show the summary of evaluation results
-@login_required
-def eval_summary(request) :
-  try :
-    assessor = Assessor.objects.get(user=request.user)
-  except Assessor.DoesNotExist :
-    return render_to_response('error.html', {
-      'error_message': "You are not a valid assessor.",
-    })
-
-  if False == assessor.user.is_staff :
-    return render_to_response('error.html', {
-      'error_message': "You do not have access to the page.",
-      'assessor': assessor,
-  })
-  
-  avg_eval_list = AvgEvalItem.objects.all()
-  
-  return render_to_response('eval_summary.html', {
-    'assessor': assessor, 'avg_eval_list': avg_eval_list})
-
-
-# show the evaluation results of one retrieval function
-@login_required
-def eval_rf(request, rf_id) :
-  try :
-    assessor = Assessor.objects.get(user=request.user)
-  except Assessor.DoesNotExist :
-    return render_to_response('error.html', {
-      'error_message': "You are not a valid assessor.",
-    })
-
-  if False == assessor.user.is_staff :
-    return render_to_response('error.html', {
-      'error_message': "You do not have access to the page.",
-      'assessor': assessor,
-  })
-  
-  try :
-    ret_func = RetrievalFunction.objects.get(pk=rf_id)
-  except Assessment.DoesNotExist :
-    return render_to_response('error.html', {
-      'error_message': "Invalid retrieval function.",
-      'assessor': assessor,
-    })
-
-  if ret_func.user != assessor.user :
-    if False == assessor.user.is_staff :
-      return render_to_response('error.html', {
-        'error_message': "You do not have access to the retrieval function.",
-        'assessor': assessor,
-    })
-
-  eval_list = EvalItem.objects.filter(rf=ret_func)
-  
-  return render_to_response('eval_rf.html', {
-    'assessor': assessor, 'ret_func': ret_func, 'eval_list': eval_list})

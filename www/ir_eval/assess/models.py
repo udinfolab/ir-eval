@@ -43,31 +43,25 @@ class RetrievalFunction(models.Model) :
   user = models.ForeignKey(User)
   url = models.CharField(max_length=300)
   note = models.TextField()
-  index = models.IntegerField()
+  rf_id = models.CharField(max_length=300)
 
   def __unicode__(self) :
     return str(self.user) + '-' + str(self.index)
         
 class EvalItem(models.Model) :
-  user = models.ForeignKey(User)
   rf = models.ForeignKey(RetrievalFunction)
   query = models.ForeignKey(Query)
   MAP = models.FloatField()
-  P1 = models.FloatField()
-  P3 = models.FloatField()
-  P10 = models.FloatField()
+  P5 = models.FloatField()
   NDCG = models.FloatField()
 
   def __unicode__(self) :
     return str(self.pk) + '-' + str(self.rf)
 
 class AvgEvalItem(models.Model) :
-  user = models.ForeignKey(User)
   rf = models.ForeignKey(RetrievalFunction)
   MAP = models.FloatField()
-  P1 = models.FloatField()
-  P3 = models.FloatField()
-  P10 = models.FloatField()
+  P5 = models.FloatField()
   NDCG = models.FloatField()
 
   def __unicode__(self) :
