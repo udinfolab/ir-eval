@@ -187,8 +187,8 @@ def load_eval_list (file_path) :
         item['rf_id'] = rf_id
         item['qid'] = qid
         item['map'] = map
-        item['p5'] = map
-        item['ndcg'] = map
+        item['p5'] = p5
+        item['ndcg'] = ndcg
         eval_list.append(item)
 
       return eval_list
@@ -230,8 +230,8 @@ def load_avg_eval_list (file_path) :
         item = dict()
         item['rf_id'] = rf_id
         item['map'] = map
-        item['p5'] = map
-        item['ndcg'] = map
+        item['p5'] = p5
+        item['ndcg'] = ndcg
         avg_eval_list.append(item)
 
       return avg_eval_list

@@ -98,7 +98,7 @@ sub save_trec(){
   for my $qid(sort {$a<=>$b} keys %ret){
     for my $rank(sort {$a<=>$b} keys %{$ret{$qid}}){
       my $record = $ret{$qid}{$rank};
-      my(undef, $did, $score) = split /\t/, $record;
+      my(undef, $did, undef, $score) = split /\t/, $record;
       print SAVE "$qid Q0 $did $rank $score STU\n";
     }
   }
