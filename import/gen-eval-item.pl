@@ -5,7 +5,7 @@
 #
 # Version: 1.0.
 #
-# Usage: gen-eval-item.pl [-v] <ret_dir> <eval> <avg_eval\n";
+# Usage: gen-eval-item.pl [-v] <ret_dir> <eval> <avg_eval>\n";
 #        -v: verbose mode (default: no)
 #
 # HISTORY

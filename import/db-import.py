@@ -391,6 +391,9 @@ def do_commit() :
 def main() :
   init_db()
 
+  #disable import to avoid data been overwritten
+  return
+
   global assessor_dict
   global query_dict
 
