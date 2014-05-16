@@ -77,7 +77,11 @@ div#get-started{
 }
 
 div#eval_wrapper{
-  padding-top: 25px;
+  padding-top: 15px;
+}
+
+table#avg_eval > tbody > tr.my{
+  background: none repeat scroll 0 0 #FFFFD3;
 }
 
 /**********************************************************/

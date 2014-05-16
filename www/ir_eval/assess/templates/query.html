@@ -7,7 +7,7 @@
         <li><a href="{% url 'assess.views.home' %}">Home</a></li>
         <li class="active"><a href="{% url 'assess.views.query' query.id %}">Query {{query.id}}</a></li>
       </ul>
-      <p class="navbar-text"><span id="done">{{done}}</span> documents assessed, <span id="left">{{left}}</span> documents left.</p>
+      <p class="navbar-text"><span id="done">{{done}}</span> done, <span id="left">{{left}}</span> left.</p>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="#" data-toggle="modal" data-target="#guideline_modal">Evaluation Guidelines</a></li>
         <li class="dropdown">

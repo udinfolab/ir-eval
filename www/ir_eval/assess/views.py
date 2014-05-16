@@ -205,12 +205,6 @@ def eval_summary(request) :
       'error_message': "You are not a valid assessor.",
     })
 
-  if False == assessor.user.is_staff :
-    return render_to_response('error.html', {
-      'error_message': "You do not have access to the page.",
-      'assessor': assessor,
-  })
-  
   avg_eval_list = AvgEvalItem.objects.all()
   
   return render_to_response('eval_summary.html', {
@@ -227,12 +221,6 @@ def eval_rf(request, rf_id) :
       'error_message': "You are not a valid assessor.",
     })
 
-  if False == assessor.user.is_staff :
-    return render_to_response('error.html', {
-      'error_message': "You do not have access to the page.",
-      'assessor': assessor,
-  })
-  
   try :
     ret_func = RetrievalFunction.objects.get(pk=rf_id)
   except Assessment.DoesNotExist :

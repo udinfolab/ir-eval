@@ -34,25 +34,62 @@
 {% endif %}
 
 <div class="row">
+  {% if not assessor.user.is_staff %}
+  <div class="bg-info" style="padding: 10px;">
+    <ul>
+      <li>All the results are sorted by <abbr title="normalized discounted cumulative gain at rank 5">nDCG@5</abbr><a target="_blank" href="http://en.wikipedia.org/wiki/NDCG#Normalized_DCG"><i class="fa fa-external-link"></i></a> in descending order. To sort by a certain column, click the header of the column.</li>
+      <li>Your results are highlighted in <span style="background-color: #FFFFD3">light yellow background color</span>. Only FID (Function ID) are displayed for anonymity.</li>
+      <li>You may check the results of each query on your retrieval function by clicking the link of FID.</li>
+    </ul>
+  </div>
+  {% endif %}
   <div id="eval_wrapper">
     <table id="avg_eval" class="table table-condensed">
       <thead>
         <tr>
+          {% if assessor.user.is_staff %}
           <th>Name</th>
+          {% endif %}
           <th>FID</th>
+          {% if assessor.user.is_staff %}
           <th>Note</th>
+          {% endif %}
           <th>P@5</th>
-          <th>nDCG@5</th> 
+          {% if assessor.user.is_staff %}
+          <th>nDCG@5</th>
+          <th>nDCG@5(60)</th>
+          {% else %}
+          <th>nDCG@5</th>
+          {% endif %}
         </tr> 
       </thead> 
       <tbody> 
       {% for eval in avg_eval_list %}
-        <tr>
+        <tr {% if assessor.user == eval.rf.user %}class="my"{% endif %}>
+          {% if assessor.user.is_staff %}
           <td>{{eval.rf.user.first_name}}</td>
-          <td><a href="{% url 'assess.views.eval_rf' eval.rf.pk %}">{{eval.rf.rf_id}}</a></td>
+          {% endif %}
+          <td>
+            {% if assessor.user.is_staff %}
+            <a href="{% url 'assess.views.eval_rf' eval.rf.pk %}">{{eval.rf.rf_id}}</a>
+            {% else %}
+            {% if assessor.user == eval.rf.user %}
+            <a href="{% url 'assess.views.eval_rf' eval.rf.pk %}">{{eval.rf.rf_id}}</a>
+            {% else %}
+            {{eval.rf.rf_id}}
+            {% endif %}
+            {% endif %}
+          </td>
+          {% if assessor.user.is_staff %}
           <td>{{eval.rf.note}}</td>
+          {% endif %}
           <td>{{eval.P5|floatformat:4}}</td>
-          <td>{{eval.NDCG|floatformat:4}}</td>
+          {% if assessor.user.is_staff %}
+          <td>{{eval.nDCG|floatformat:4}}</td>
+          <td>{{eval.nDCG_o|floatformat:4}}</td>
+          {% else %}
+          <td>{{eval.nDCG_o|floatformat:4}}</td>
+          {% endif %}
         </tr>
       {% endfor %}
       </tbody>
@@ -102,10 +139,14 @@ $(function() {
 
     // widget code contained in the jquery.tablesorter.widgets.js file
     // use the zebra stripe widget if you plan on hiding any rows (filter widget)
-    widgets : [ "uitheme", "zebra" ],
+    widgets : [ "uitheme", ],
     
     // initial sorting
-    sortList: [[4,1], [3,1]],
+    {% if assessor.user.is_staff %}
+    sortList: [[5,1]],
+    {% else %}
+    sortList: [[2,1]],
+    {% endif %}
 
     widgetOptions : {
       // using the default zebra striping class name, so it actually isn't included in the theme variable above

@@ -34,7 +34,7 @@
 {% endif %}
 
 <div class="row">
-  <h4>Function ID: {{ret_func.rf_id}} ({{ret_func.note}})</h4>
+  <h4>Function ID: {{ret_func.rf_id}} ({{ret_func.note}}){% if assessor.user.is_staff %} by {{ret_func.user.first_name}} ({{ret_func.user.pk}}){% endif %}</h4>
   <div id="eval_wrapper">
     <table id="eval" class="table table-condensed">
       <thead>
@@ -49,7 +49,7 @@
         <tr>
           <td>{{eval.query.qid}}</td>
           <td>{{eval.P5|floatformat:4}}</td>
-          <td>{{eval.NDCG|floatformat:4}}</td>
+          <td>{{eval.nDCG|floatformat:4}}</td>
         </tr>
       {% endfor %}
       </tbody>
@@ -99,7 +99,7 @@ $(function() {
 
     // widget code contained in the jquery.tablesorter.widgets.js file
     // use the zebra stripe widget if you plan on hiding any rows (filter widget)
-    widgets : [ "uitheme", "zebra" ],
+    widgets : [ "uitheme", ],
     
     // initial sorting
     sortList: [[2,1], [1,1]],

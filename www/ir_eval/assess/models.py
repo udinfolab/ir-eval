@@ -53,7 +53,7 @@ class EvalItem(models.Model) :
   query = models.ForeignKey(Query)
   MAP = models.FloatField()
   P5 = models.FloatField()
-  NDCG = models.FloatField()
+  nDCG = models.FloatField()
 
   def __unicode__(self) :
     return str(self.pk) + '-' + str(self.rf)
@@ -62,7 +62,8 @@ class AvgEvalItem(models.Model) :
   rf = models.ForeignKey(RetrievalFunction)
   MAP = models.FloatField()
   P5 = models.FloatField()
-  NDCG = models.FloatField()
+  nDCG = models.FloatField()
+  nDCG_o = models.FloatField() # the average nDCG based on other users' queries
 
   def __unicode__(self) :
     return str(self.pk) + '-' + str(self.rf)
