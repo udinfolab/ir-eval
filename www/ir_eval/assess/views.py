@@ -144,7 +144,11 @@ def label(request, assessment_id) :
   if "POST" != request.method :
     return HttpResponseRedirect(reverse('assess.views.assessment',
       args=[assessment_id]))
-
+  
+  # disable the assessment
+  msg = 'Assessment closed.'
+  return error_json_response(msg)
+  
   try :
     assessment = Assessment.objects.get(pk=assessment_id)
   except Assessment.DoesNotExist :
